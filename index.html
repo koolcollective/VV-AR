@@ -4,8 +4,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="assets/Js/aframe.min.js"></script>
     <script src="assets/Js/Mindar-image-aframe.prod.js"></script>
+    <style>
+      #corner-logo {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        width: 160px;
+        height: auto;
+        z-index: 9999;
+        display: none;
+        pointer-events: none;
+      }
+    </style>
   </head>
   <body>
+    <img id="corner-logo" src="assets/Koolcollective x VV.png" alt="Koolcollective x VV" />
     <a-scene mindar-image="imageTargetSrc: ./assets/targets.mind" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
     <a-assets>
 	<img id="card" src="assets/AR_laag.jpg" />
@@ -22,5 +35,15 @@
         >
       </a-entity>
     </a-scene>
+    <script>
+      (function () {
+        var scene = document.querySelector("a-scene");
+        var logo = document.getElementById("corner-logo");
+        if (!scene || !logo) return;
+        scene.addEventListener("loaded", function () {
+          logo.style.display = "block";
+        });
+      })();
+    </script>
   </body>
 </html>
