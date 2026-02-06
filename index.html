@@ -5,9 +5,9 @@
     <script src="assets/Js/aframe.min.js"></script>
     <script src="assets/Js/Mindar-image-aframe.prod.js"></script>
     <style>
-      #corner-logo {
+      #top-left-logo,
+      #bottom-left-logo {
         position: fixed;
-        top: 16px;
         left: 16px;
         width: 160px;
         height: auto;
@@ -15,10 +15,17 @@
         display: none;
         pointer-events: none;
       }
+      #top-left-logo {
+        top: 16px;
+      }
+      #bottom-left-logo {
+        bottom: 16px;
+      }
     </style>
   </head>
   <body>
-    <img id="corner-logo" src="assets/powered by Koolcollective x VV.png" alt="Koolcollective x VV" />
+    <img id="top-left-logo" src="assets/VV_logo.png" alt="VV logo" />
+    <img id="bottom-left-logo" src="assets/powered by Koolcollective.png" alt="Powered by Koolcollective" />
     <a-scene mindar-image="imageTargetSrc: ./assets/targets.mind" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
     <a-assets>
 	<img id="card" src="assets/AR_laag.jpg" />
@@ -38,10 +45,12 @@
     <script>
       (function () {
         var scene = document.querySelector("a-scene");
-        var logo = document.getElementById("corner-logo");
-        if (!scene || !logo) return;
+        var topLogo = document.getElementById("top-left-logo");
+        var bottomLogo = document.getElementById("bottom-left-logo");
+        if (!scene || !topLogo || !bottomLogo) return;
         scene.addEventListener("loaded", function () {
-          logo.style.display = "block";
+          topLogo.style.display = "block";
+          bottomLogo.style.display = "block";
         });
       })();
     </script>
