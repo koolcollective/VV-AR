@@ -20755,3 +20755,194 @@ return a / b;`,packedOpSnippet:`
 </div>
 
 `,Z_=".mindar-ui-overlay{display:flex;align-items:center;justify-content:center;position:absolute;left:0;right:0;top:0;bottom:0;background:transparent;z-index:2}.mindar-ui-overlay.hidden{display:none}.mindar-ui-loading .loader{border:16px solid #222;border-top:16px solid white;opacity:.8;border-radius:50%;width:120px;height:120px;animation:spin 2s linear infinite}@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}.mindar-ui-compatibility .content{background:black;color:#fff;opacity:.8;text-align:center;margin:20px;padding:20px;min-height:50vh}@media (min-aspect-ratio: 1/1){.mindar-ui-scanning .scanning{width:50vh;height:50vh}}@media (max-aspect-ratio: 1/1){.mindar-ui-scanning .scanning{width:80vw;height:80vw}}.mindar-ui-scanning .scanning .inner{position:relative;width:100%;height:100%;opacity:.8;background:linear-gradient(to right,white 10px,transparent 10px) 0 0,linear-gradient(to right,white 10px,transparent 10px) 0 100%,linear-gradient(to left,white 10px,transparent 10px) 100% 0,linear-gradient(to left,white 10px,transparent 10px) 100% 100%,linear-gradient(to bottom,white 10px,transparent 10px) 0 0,linear-gradient(to bottom,white 10px,transparent 10px) 100% 0,linear-gradient(to top,white 10px,transparent 10px) 0 100%,linear-gradient(to top,white 10px,transparent 10px) 100% 100%;background-repeat:no-repeat;background-size:40px 40px}.mindar-ui-scanning .scanning .inner .scanline{position:absolute;width:100%;height:10px;background:white;animation:move 2s linear infinite}@keyframes move{0%,to{top:0%}50%{top:calc(100% - 10px)}}";class UI{constructor({uiLoading:t,uiScanning:e,uiError:s}){const o=document.createElement("style");o.innerText=Z_,document.head.appendChild(o),t==="yes"?this.loadingModal=this._loadHTML(P_):t!=="no"&&(this.loadingModal=document.querySelector(t)),s==="yes"?this.compatibilityModal=this._loadHTML(O_):s!=="no"&&(this.compatibilityModal=document.querySelector(s)),e==="yes"?this.scanningMask=this._loadHTML(K_):e!=="no"&&(this.scanningMask=document.querySelector(e)),this.hideLoading(),this.hideCompatibility(),this.hideScanning()}showLoading(){this.loadingModal&&this.loadingModal.classList.remove("hidden")}hideLoading(){this.loadingModal&&this.loadingModal.classList.add("hidden")}showCompatibility(){this.compatibilityModal&&this.compatibilityModal.classList.remove("hidden")}hideCompatibility(){this.compatibilityModal&&this.compatibilityModal.classList.add("hidden")}showScanning(){this.scanningMask&&this.scanningMask.classList.remove("hidden")}hideScanning(){this.scanningMask&&this.scanningMask.classList.add("hidden")}_loadHTML(t){const e=document.createElement("template");e.innerHTML=t.trim();const s=e.content.firstChild;return document.getElementsByTagName("body")[0].appendChild(s),s}}window.MINDAR||(window.MINDAR={}),window.MINDAR.IMAGE={Controller:_I,Compiler:ZI,UI},AFRAME.registerSystem("mindar-image-system",{container:null,video:null,processingImage:!1,init:function(){this.anchorEntities=[]},tick:function(){},setup:function({imageTargetSrc:n,maxTrack:t,showStats:e,uiLoading:s,uiScanning:o,uiError:r,missTolerance:i,warmupTolerance:a,filterMinCF:c,filterBeta:l}){this.imageTargetSrc=n,this.maxTrack=t,this.filterMinCF=c,this.filterBeta=l,this.missTolerance=i,this.warmupTolerance=a,this.showStats=e,this.ui=new UI({uiLoading:s,uiScanning:o,uiError:r})},registerAnchor:function(n,t){this.anchorEntities.push({el:n,targetIndex:t})},start:function(){this.container=this.el.sceneEl.parentNode,this.showStats&&(this.mainStats=new Stats,this.mainStats.showPanel(0),this.mainStats.domElement.style.cssText="position:absolute;top:0px;left:0px;z-index:999",this.container.appendChild(this.mainStats.domElement)),this.ui.showLoading(),this._startVideo()},switchTarget:function(n){this.controller.interestedTargetIndex=n},stop:function(){this.pause(),this.video.srcObject.getTracks().forEach(function(t){t.stop()}),this.video.remove(),this.controller.dispose()},pause:function(n=!1){n||this.video.pause(),this.controller.stopProcessVideo()},unpause:function(){this.video.play(),this.controller.processVideo(this.video)},_startVideo:function(){if(this.video=document.createElement("video"),this.video.setAttribute("autoplay",""),this.video.setAttribute("muted",""),this.video.setAttribute("playsinline",""),this.video.style.position="absolute",this.video.style.top="0px",this.video.style.left="0px",this.video.style.zIndex="-2",this.container.appendChild(this.video),!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){this.el.emit("arError",{error:"VIDEO_FAIL"}),this.ui.showCompatibility();return}navigator.mediaDevices.getUserMedia({audio:!1,video:{facingMode:"environment"}}).then(n=>{this.video.addEventListener("loadedmetadata",()=>{this.video.setAttribute("width",this.video.videoWidth),this.video.setAttribute("height",this.video.videoHeight),this._startAR()}),this.video.srcObject=n}).catch(n=>{console.log("getUserMedia error",n),this.el.emit("arError",{error:"VIDEO_FAIL"})})},_startAR:async function(){const n=this.video;this.container,this.controller=new _I({inputWidth:n.videoWidth,inputHeight:n.videoHeight,maxTrack:this.maxTrack,filterMinCF:this.filterMinCF,filterBeta:this.filterBeta,missTolerance:this.missTolerance,warmupTolerance:this.warmupTolerance,onUpdate:e=>{if(e.type==="processDone")this.mainStats&&this.mainStats.update();else if(e.type==="updateMatrix"){const{targetIndex:s,worldMatrix:o}=e;for(let i=0;i<this.anchorEntities.length;i++)this.anchorEntities[i].targetIndex===s&&this.anchorEntities[i].el.updateWorldMatrix(o);this.anchorEntities.reduce((i,a)=>i||a.el.el.object3D.visible,!1)?this.ui.hideScanning():this.ui.showScanning()}}}),this._resize(),window.addEventListener("resize",this._resize.bind(this));const{dimensions:t}=await this.controller.addImageTargets(this.imageTargetSrc);for(let e=0;e<this.anchorEntities.length;e++){const{el:s,targetIndex:o}=this.anchorEntities[e];o<t.length&&s.setupMarker(t[o])}await this.controller.dummyRun(this.video),this.el.emit("arReady"),this.ui.hideLoading(),this.ui.showScanning(),this.controller.processVideo(this.video)},_resize:function(){const n=this.video,t=this.container;let e,s;const o=n.videoWidth/n.videoHeight,r=t.clientWidth/t.clientHeight;o>r?(s=t.clientHeight,e=s*o):(e=t.clientWidth,s=e/o);const i=this.controller.getProjectionMatrix(),a=2*Math.atan(1/i[5]/s*t.clientHeight)*180/Math.PI,c=i[14]/(i[10]-1),l=i[14]/(i[10]+1);i[5]/i[0];const u=t.clientWidth/t.clientHeight,h=t.getElementsByTagName("a-camera")[0].getObject3D("camera");h.fov=a,h.aspect=u,h.near=c,h.far=l,h.updateProjectionMatrix(),this.video.style.top=-(s-t.clientHeight)/2+"px",this.video.style.left=-(e-t.clientWidth)/2+"px",this.video.style.width=e+"px",this.video.style.height=s+"px"}}),AFRAME.registerComponent("mindar-image",{dependencies:["mindar-image-system"],schema:{imageTargetSrc:{type:"string"},maxTrack:{type:"int",default:1},filterMinCF:{type:"number",default:-1},filterBeta:{type:"number",default:-1},missTolerance:{type:"int",default:-1},warmupTolerance:{type:"int",default:-1},showStats:{type:"boolean",default:!1},autoStart:{type:"boolean",default:!0},uiLoading:{type:"string",default:"yes"},uiScanning:{type:"string",default:"yes"},uiError:{type:"string",default:"yes"}},init:function(){const n=this.el.sceneEl.systems["mindar-image-system"];n.setup({imageTargetSrc:this.data.imageTargetSrc,maxTrack:this.data.maxTrack,filterMinCF:this.data.filterMinCF===-1?null:this.data.filterMinCF,filterBeta:this.data.filterBeta===-1?null:this.data.filterBeta,missTolerance:this.data.missTolerance===-1?null:this.data.missTolerance,warmupTolerance:this.data.warmupTolerance===-1?null:this.data.warmupTolerance,showStats:this.data.showStats,uiLoading:this.data.uiLoading,uiScanning:this.data.uiScanning,uiError:this.data.uiError}),this.data.autoStart&&this.el.sceneEl.addEventListener("renderstart",()=>{n.start()})},remove:function(){this.el.sceneEl.systems["mindar-image-system"].stop()}}),AFRAME.registerComponent("mindar-image-target",{dependencies:["mindar-image-system"],schema:{targetIndex:{type:"number"}},postMatrix:null,init:function(){this.el.sceneEl.systems["mindar-image-system"].registerAnchor(this,this.data.targetIndex),this.invisibleMatrix=new AFRAME.THREE.Matrix4().set(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);const t=this.el.object3D;t.visible=!1,t.matrixAutoUpdate=!1,t.matrix=this.invisibleMatrix},setupMarker([n,t]){const e=new AFRAME.THREE.Vector3,s=new AFRAME.THREE.Quaternion,o=new AFRAME.THREE.Vector3;e.x=n/2,e.y=n/2+(t-n)/2,o.x=n,o.y=n,o.z=n,this.postMatrix=new AFRAME.THREE.Matrix4,this.postMatrix.compose(e,s,o)},updateWorldMatrix(n){if(this.el.emit("targetUpdate"),!this.el.object3D.visible&&n!==null?this.el.emit("targetFound"):this.el.object3D.visible&&n===null&&this.el.emit("targetLost"),this.el.object3D.visible=n!==null,n===null){this.el.object3D.matrix=this.invisibleMatrix;return}var t=new AFRAME.THREE.Matrix4;t.elements=n,t.multiply(this.postMatrix),this.el.object3D.matrix=t}})})();
+;
+(function () {
+  // ---- KC Lottie loader injected into MindAR prod build ----
+  // Uses the existing MindAR/A-Frame code in this file; it does NOT re-load MindAR.
+  const LOTTIE_JSON_SRC = "assets/js/Loading_Animation.json";
+  const MIN_PLAYS = 3;
+
+  // Optional: set to true while debugging
+  const DEBUG = false;
+  const log = (...a) => { if (DEBUG) console.log("[KC-LOADER]", ...a); };
+
+  if (window.__KC_KOOLLOADER_V4__) return;
+  window.__KC_KOOLLOADER_V4__ = true;
+
+  // Load lottie-player web component (once)
+  function ensureLottiePlayer() {
+    if (window.customElements && window.customElements.get("lottie-player")) return;
+    if (window.__KC_LOTTIE_SCRIPT__) return;
+    window.__KC_LOTTIE_SCRIPT__ = true;
+
+    const s = document.createElement("script");
+    s.src = "https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js";
+    s.defer = true;
+    s.onload = () => log("lottie-player script loaded");
+    s.onerror = () => console.warn("[KC-LOADER] Could not load lottie-player script (offline / blocked).");
+    document.head.appendChild(s);
+  }
+
+  ensureLottiePlayer();
+
+  // CSS: hide built-in spinner; style our overlay
+  const style = document.createElement("style");
+  style.textContent = `
+    /* Hide MindAR's built-in spinner circle if it's present */
+    .mindar-ui-loading .loader { display: none !important; }
+
+    #kc-loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      opacity: 1;
+      transition: opacity 300ms ease;
+      pointer-events: auto;
+    }
+    #kc-loading-overlay.kc-hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Gate conditions
+  let playsDone = 0;
+  let arReady = false;
+  let overlayRemoved = false;
+
+  function hideOverlay() {
+    if (overlayRemoved) return;
+    const overlay = document.getElementById("kc-loading-overlay");
+    if (!overlay) return;
+    overlay.classList.add("kc-hide");
+    overlayRemoved = true;
+    setTimeout(() => { try { overlay.remove(); } catch (_) {} }, 350);
+  }
+
+  function maybeFinish() {
+    if (arReady && playsDone >= MIN_PLAYS) {
+      log("Conditions met. Hiding overlay.", { playsDone, arReady });
+      hideOverlay();
+    }
+  }
+
+  // Attach to MindAR scene events (poll because A-Frame creates scene async)
+  function hookARReadyEvents() {
+    const scene = document.querySelector("a-scene");
+    if (!scene) return false;
+    if (scene.__KC_AR_HOOKED__) return true;
+    scene.__KC_AR_HOOKED__ = true;
+
+    scene.addEventListener("arReady", () => {
+      arReady = true;
+      log("arReady fired");
+      maybeFinish();
+    });
+    scene.addEventListener("arError", (e) => {
+      console.error("[KC-LOADER] MindAR arError:", e);
+    });
+    return true;
+  }
+
+  // Create overlay and run the minimum-plays loop
+  window.addEventListener("DOMContentLoaded", async () => {
+    log("DOMContentLoaded");
+
+    // Build overlay
+    const overlay = document.createElement("div");
+    overlay.id = "kc-loading-overlay";
+    // Keep MindAR classes for compatibility (but we override its visuals)
+    overlay.className = "mindar-ui-overlay mindar-ui-loading";
+
+    // If lottie-player is blocked/offline, show a simple fallback text
+    const fallback = document.createElement("div");
+    fallback.style.fontFamily = "sans-serif";
+    fallback.style.letterSpacing = "2px";
+    fallback.style.color = "#555";
+    fallback.style.fontSize = "13px";
+    fallback.textContent = "LOADING…";
+
+    // Create lottie-player element (will upgrade when component loads)
+    const player = document.createElement("lottie-player");
+    player.id = "kc-loader";
+    player.setAttribute("src", LOTTIE_JSON_SRC);
+    player.setAttribute("background", "transparent");
+    player.setAttribute("speed", "1");
+    player.setAttribute("style", "width:200px;height:200px");
+    // We control looping ourselves
+    player.removeAttribute("loop");
+    player.setAttribute("autoplay", "");
+
+    overlay.appendChild(player);
+    overlay.appendChild(fallback);
+    document.body.appendChild(overlay);
+
+    // Hide fallback once player upgrades successfully
+    const hideFallback = () => { fallback.style.display = "none"; };
+
+    // Wait briefly for custom element definition; don't block forever
+    try {
+      if (window.customElements?.whenDefined) {
+        await Promise.race([
+          window.customElements.whenDefined("lottie-player"),
+          new Promise((res) => setTimeout(res, 2500)),
+        ]);
+      }
+    } catch (_) {}
+
+    // If upgraded, it will have methods like play/seek; hide fallback
+    if (typeof player.play === "function") hideFallback();
+
+    // Force MIN_PLAYS consecutive plays
+    let lastEventAt = 0;
+    const onDone = () => {
+      const now = Date.now();
+      // debounce duplicate events
+      if (now - lastEventAt < 120) return;
+      lastEventAt = now;
+
+      playsDone += 1;
+      log("Animation done:", playsDone);
+
+      if (playsDone < MIN_PLAYS) {
+        try { player.seek(0); } catch (_) {}
+        try { player.play(); } catch (_) {}
+      } else {
+        maybeFinish();
+      }
+    };
+
+    // Different builds of lottie-player use different event names
+    player.addEventListener("complete", onDone);
+    player.addEventListener("finish", onDone);
+    player.addEventListener("loopComplete", onDone);
+
+    // Kickstart if autoplay didn't start
+    setTimeout(() => { try { player.play(); } catch (_) {} }, 100);
+
+    // Poll for scene to hook arReady
+    if (!hookARReadyEvents()) {
+      const start = Date.now();
+      const timer = setInterval(() => {
+        if (hookARReadyEvents() || Date.now() - start > 8000) clearInterval(timer);
+      }, 50);
+    }
+
+    // Safety: if arReady already happened before we hooked, allow hide after MIN_PLAYS + small delay
+    setTimeout(() => {
+      if (!arReady) {
+        const hasVideo = !!document.querySelector("video");
+        if (hasVideo) {
+          arReady = true;
+          log("Fallback inferred arReady from video presence");
+          maybeFinish();
+        }
+      }
+    }, 3000);
+  });
+})();
