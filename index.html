@@ -44,19 +44,18 @@
       </a-entity>
     </a-scene>
     <script>
-      (function () {
-        var scene = document.querySelector("a-scene");
-         var topLogo = document.getElementById("top-left-logo");
-        var bottomLogo = document.getElementById("bottom-left-logo");
-        if (!scene || !topLogo || !bottomLogo) return;
-        scene.addEventListener("loaded", function () {
-             topLogo.style.display = "block";
-          bottomLogo.style.display = "block";
-        });
-        scene.addEventListener("loaded", function () {
-          logo.style.display = "block";
-        });
-      })();
-    </script>
+  (function () {
+    var scene = document.querySelector("a-scene");
+    var topLogo = document.getElementById("top-left-logo");
+    var bottomLogo = document.getElementById("bottom-left-logo");
+    if (!scene || !topLogo || !bottomLogo) return;
+
+    scene.addEventListener("loaded", function () {
+      topLogo.style.display = "block";
+      bottomLogo.style.display = "block";
+    });
+  })();
+</script>
+
   </body>
 </html>
