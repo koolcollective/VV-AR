@@ -7,11 +7,10 @@
     <style>
       #top-left-logo,
       #bottom-left-logo {
-        position: fixed;
+       position: fixed;
         left: 16px;
         width: 160px;
         height: auto;
-        z-index: 9999;
         display: none;
         pointer-events: none;
       }
@@ -24,10 +23,12 @@
     </style>
   </head>
   <body>
-    <img id="top-left-logo" src="assets/VV_logo.png" alt="VV logo" />
-    <img id="bottom-left-logo" src="assets/powered by Koolcollective.png" alt="Powered by Koolcollective" />
+     <img id="top-left-logo" src="assets/VV_logo.png" alt="VV logo" />
+    <img id="bottom-left-logo" src="assets/powered_by_Koolcollective.png" alt="Powered by Koolcollective" />
     <a-scene mindar-image="imageTargetSrc: ./assets/targets.mind" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
-    <a-assets>
+
+
+      <a-assets>
 	<img id="card" src="assets/AR_laag.jpg" />
 	<a-asset-item id="#Ar_laag" src="assets/AR_laag.jpg"></a-asset-item>
       </a-assets>
@@ -45,12 +46,15 @@
     <script>
       (function () {
         var scene = document.querySelector("a-scene");
-        var topLogo = document.getElementById("top-left-logo");
+         var topLogo = document.getElementById("top-left-logo");
         var bottomLogo = document.getElementById("bottom-left-logo");
         if (!scene || !topLogo || !bottomLogo) return;
         scene.addEventListener("loaded", function () {
-          topLogo.style.display = "block";
+             topLogo.style.display = "block";
           bottomLogo.style.display = "block";
+        });
+        scene.addEventListener("loaded", function () {
+          logo.style.display = "block";
         });
       })();
     </script>
