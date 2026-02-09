@@ -20760,7 +20760,7 @@ return a / b;`,packedOpSnippet:`
   // ---- KC Lottie loader injected into MindAR prod build ----
   // Uses the existing MindAR/A-Frame code in this file; it does NOT re-load MindAR.
   const LOTTIE_JSON_SRC = new URL("assets/json/Loading_Animation.json", document.baseURI).toString();
-  const MIN_PLAYS = 3;
+  const MIN_PLAYS = 2;
 
   // Optional: set to true while debugging
   const DEBUG = false;
