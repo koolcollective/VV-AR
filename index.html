@@ -5,20 +5,13 @@
     <script src="assets/json/aframe.min.js"></script>
     <script src="assets/json/Mindar-image-aframe.prod.js"></script>
     <style>
-      #top-left-logo,
-      #bottom-left-logo {
-       position: fixed;
+      #top-left-logo {
+        position: fixed;
         left: 16px;
         width: 100px;
         height: auto;
         display: none;
         pointer-events: none;
-      }
-      #top-left-logo {
-        top: 16px;
-      }
-      #bottom-left-logo {
-        bottom: 16px;
       }
     </style>
   </head>
@@ -46,11 +39,10 @@
   (function () {
     var scene = document.querySelector("a-scene");
     var topLogo = document.getElementById("top-left-logo");
-    if (!scene || !topLogo || !bottomLogo) return;
+    if (!scene || !topLogo) return;
 
     scene.addEventListener("loaded", function () {
       topLogo.style.display = "block";
-      bottomLogo.style.display = "block";
     });
   })();
 </script>
