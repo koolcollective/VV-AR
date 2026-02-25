@@ -13,10 +13,26 @@
         display: none;
         pointer-events: none;
       }
+      #zoom-hint {
+        position: fixed;
+        left: 16px;
+        right: 16px;
+        bottom: 20px;
+        padding: 10px 12px;
+        background: rgba(0, 0, 0, 0.55);
+        color: #fff;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        border-radius: 10px;
+        text-align: center;
+        display: none;
+        pointer-events: none;
+      }
     </style>
   </head>
   <body>
     <img id="top-left-logo" src="assets/VV_logo.png" alt="VV logo" />
+    <div id="zoom-hint">Pinch om te zoomen, sleep met 1 vinger om details te bekijken</div>
 
     <a-scene
       mindar-image="imageTargetSrc: ./assets/targets.mind; filterMinCF: 0.0001; filterBeta: 0.001; warmupTolerance: 10; missTolerance: 15"
@@ -32,11 +48,124 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-plane src="#card" position="0 0 0" height="1.5" width="1" rotation="0 0 0"></a-plane>
+        <a-plane id="poster-plane" poster-zoom-pan src="#card" position="0 0 0" height="1.5" width="1" rotation="0 0 0"></a-plane>
       </a-entity>
     </a-scene>
 
     <script>
+      AFRAME.registerComponent("poster-zoom-pan", {
+        init: function () {
+          this.minScale = 1;
+          this.maxScale = 3;
+          this.currentScale = 1;
+          this.baseWidth = 1;
+          this.baseHeight = 1.5;
+          this.startPinchDistance = 0;
+          this.startScale = 1;
+          this.lastX = 0;
+          this.lastY = 0;
+          this.targetVisible = false;
+
+          this.targetEntity = this.el.parentEl;
+          this.targetEntity.addEventListener("targetFound", () => {
+            this.targetVisible = true;
+            var hint = document.getElementById("zoom-hint");
+            if (hint) hint.style.display = "block";
+          });
+          this.targetEntity.addEventListener("targetLost", () => {
+            this.targetVisible = false;
+            var hint = document.getElementById("zoom-hint");
+            if (hint) hint.style.display = "none";
+          });
+
+          this.onTouchStart = this.onTouchStart.bind(this);
+          this.onTouchMove = this.onTouchMove.bind(this);
+          this.onTouchEnd = this.onTouchEnd.bind(this);
+          this.onWheel = this.onWheel.bind(this);
+
+          this.el.sceneEl.addEventListener("loaded", () => {
+            var canvas = this.el.sceneEl.canvas;
+            if (!canvas) return;
+            canvas.addEventListener("touchstart", this.onTouchStart, { passive: false });
+            canvas.addEventListener("touchmove", this.onTouchMove, { passive: false });
+            canvas.addEventListener("touchend", this.onTouchEnd, { passive: false });
+            canvas.addEventListener("wheel", this.onWheel, { passive: false });
+          });
+        },
+        remove: function () {
+          var canvas = this.el.sceneEl && this.el.sceneEl.canvas;
+          if (!canvas) return;
+          canvas.removeEventListener("touchstart", this.onTouchStart);
+          canvas.removeEventListener("touchmove", this.onTouchMove);
+          canvas.removeEventListener("touchend", this.onTouchEnd);
+          canvas.removeEventListener("wheel", this.onWheel);
+        },
+        clamp: function (value, min, max) {
+          return Math.min(max, Math.max(min, value));
+        },
+        touchDistance: function (touches) {
+          var dx = touches[0].clientX - touches[1].clientX;
+          var dy = touches[0].clientY - touches[1].clientY;
+          return Math.hypot(dx, dy);
+        },
+        updateScale: function (scale) {
+          this.currentScale = this.clamp(scale, this.minScale, this.maxScale);
+          this.el.object3D.scale.set(this.currentScale, this.currentScale, this.currentScale);
+          this.clampPosition();
+        },
+        clampPosition: function () {
+          var maxX = ((this.currentScale - 1) * this.baseWidth) / 2;
+          var maxY = ((this.currentScale - 1) * this.baseHeight) / 2;
+          var pos = this.el.object3D.position;
+          pos.x = this.clamp(pos.x, -maxX, maxX);
+          pos.y = this.clamp(pos.y, -maxY, maxY);
+        },
+        onTouchStart: function (event) {
+          if (!this.targetVisible) return;
+          if (event.touches.length === 2) {
+            event.preventDefault();
+            this.startPinchDistance = this.touchDistance(event.touches);
+            this.startScale = this.currentScale;
+          } else if (event.touches.length === 1) {
+            this.lastX = event.touches[0].clientX;
+            this.lastY = event.touches[0].clientY;
+          }
+        },
+        onTouchMove: function (event) {
+          if (!this.targetVisible) return;
+          if (event.touches.length === 2) {
+            event.preventDefault();
+            var distance = this.touchDistance(event.touches);
+            if (this.startPinchDistance > 0) {
+              var factor = distance / this.startPinchDistance;
+              this.updateScale(this.startScale * factor);
+            }
+          } else if (event.touches.length === 1 && this.currentScale > 1) {
+            event.preventDefault();
+            var x = event.touches[0].clientX;
+            var y = event.touches[0].clientY;
+            var dx = x - this.lastX;
+            var dy = y - this.lastY;
+            this.lastX = x;
+            this.lastY = y;
+
+            var pos = this.el.object3D.position;
+            pos.x += dx * 0.0015;
+            pos.y -= dy * 0.0015;
+            this.clampPosition();
+          }
+        },
+        onTouchEnd: function (event) {
+          if (event.touches.length < 2) this.startPinchDistance = 0;
+        },
+        onWheel: function (event) {
+          if (!this.targetVisible) return;
+          event.preventDefault();
+          var delta = event.deltaY > 0 ? -0.07 : 0.07;
+          this.updateScale(this.currentScale + delta);
+        }
+      });
+
       (function () {
         var scene = document.querySelector("a-scene");
         var topLogo = document.getElementById("top-left-logo");
