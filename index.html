@@ -28,6 +28,23 @@
         display: none;
         pointer-events: none;
       }
+      .mindar-ui-scanning .scanning {
+        position: relative;
+      }
+      .mindar-ui-scanning .scanning::after {
+        content: "Scane de poster";
+        position: absolute;
+        left: 50%;
+        bottom: -44px;
+        transform: translateX(-50%);
+        color: #fff;
+        font-family: Arial, sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        white-space: nowrap;
+      }
     </style>
   </head>
   <body>
